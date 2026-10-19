@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.hmap
+*.dSYM
+*.dSYM.zip
+
+# Productos y material que no forma parte del código
+*.ipa
+*.nsp
+*.keys
+
+# Temporales y registros locales
+*.log
+*.tmp
+*.swp
+*~
+.cache/
