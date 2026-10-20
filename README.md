@@ -16,6 +16,19 @@ La publicación actual es una versión de pruebas, no una distribución general.
 - Generar una IPA está orientado a Apple Silicon. Ese flujo no se ha probado en un Mac Intel.
 - No se garantiza compatibilidad con todos los Mac, juegos o versiones de las herramientas.
 
+## Inicio rápido
+
+El instalador publicado es experimental, **sin firma y sin notarización**. No es un paquete listo para distribución general. macOS puede advertir o impedir abrirlo.
+
+1. Consulta los [requisitos](docs/REQUISITOS.md). Abrir la aplicación y generar una IPA no piden lo mismo.
+2. Descarga el instalador de la [versión experimental](https://github.com/AbadXDev/SNative-Studio/releases/tag/v0.1.0-test.1) e instálalo. La guía completa está en [docs/INSTALACION.md](docs/INSTALACION.md).
+3. Abre SNative Studio y espera a que la pantalla Herramientas termine la comprobación. Esa pantalla no instala nada.
+4. Crea un proyecto con el NSP base, `prod.keys` y una carpeta de salida. La actualización es opcional. El contenido de `prod.keys` no se guarda.
+5. Comprueba que no falte ningún requisito obligatorio. Si falta uno, Generar IPA permanece desactivado. Las herramientas y sus comprobaciones están en [docs/DEPENDENCIAS.md](docs/DEPENDENCIAS.md).
+6. Pulsa Generar IPA. La pantalla Compilación muestra las fases y el registro, y permite copiarlo. Si algo falla, sigue [docs/SOLUCION-DE-PROBLEMAS.md](docs/SOLUCION-DE-PROBLEMAS.md).
+
+SNative Studio termina cuando existe el archivo IPA. No lo firma ni lo instala.
+
 ## Capturas
 
 ### Inicio
@@ -56,6 +69,46 @@ La aplicación, en el código de esta versión:
 Generar una IPA, firmarla, instalarla y ejecutar el juego son cuatro pasos distintos. Esta versión solo hace el primero. No firma ni instala la IPA, no descarga juegos ni herramientas y no incluye archivos de juego.
 
 El usuario debe disponer legítimamente de sus propios NSP y de su archivo `prod.keys`. Esos archivos no se publican con SNative Studio.
+
+## Juegos que nxnative da por probados
+
+El [README actual de nxnative](https://github.com/seedds/nxnative) enumera estos títulos como probados en un iPhone y jugables:
+
+- Super Mario Bros. Wonder
+- Fire Emblem Engage
+- Metroid Dread
+- 13 Sentinels: Aegis Rim
+- Super Mario 3D World + Bowser's Fury
+- The Legend of Zelda: Breath of the Wild
+- The Legend of Zelda: Link's Awakening
+- Super Mario Odyssey
+- Hades
+- Hyrule Warriors: Age of Calamity
+- Fire Emblem: Three Houses
+- Super Mario Galaxy
+- The Legend of Zelda: Tears of the Kingdom
+
+SNative Studio utiliza ese motor. El comportamiento puede variar según el dispositivo, la versión del juego y sus dependencias. Generar una IPA no garantiza que un juego arranque o sea jugable.
+
+## Otros títulos
+
+El mismo README deja Monster Hunter Rise en preparación: indica que corre en un iPhone a 30 fps desde la creación del personaje hasta el inicio en la aldea de Kamura. No lo incluye en la lista de títulos ya probados y jugables.
+
+Los demás juegos no están soportados todavía. El motor puede intentar empaquetar una IPA, pero puede no arrancar. Esas pruebas son experimentales y el resultado no está garantizado.
+
+## Dispositivos
+
+### Mac que ejecuta SNative Studio
+
+- macOS 14 o posterior. Es el destino de despliegue del proyecto.
+- Apple Silicon es la plataforma de referencia para generar una IPA. Ese flujo no se ha probado en un Mac Intel.
+- Hacen falta Xcode, el SDK de iOS, Metal y el resto de dependencias obligatorias. Están en [docs/REQUISITOS.md](docs/REQUISITOS.md) y [docs/DEPENDENCIAS.md](docs/DEPENDENCIAS.md).
+
+### iPhone y iPad de destino
+
+El README actual de nxnative pide iOS o iPadOS 26 o posterior, en un iPhone 15 Pro o posterior con chip A17 Pro o posterior, o en un iPad con chip M1 o posterior. El motivo que da ese proyecto es que las texturas de los juegos van comprimidas en formato BC y los iPhone anteriores no pueden leerlas.
+
+Esos son requisitos del dispositivo donde se ejecuta el juego, no del Mac donde se abre SNative Studio. Esta aplicación no ha comprobado esa lista modelo por modelo.
 
 ## Documentación
 
