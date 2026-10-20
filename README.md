@@ -1,8 +1,10 @@
 # SNative Studio
 
+<img src="assets/imagenes/banner.png" alt="SNative Studio 0.1.0, desarrollado por AbadX. Herramienta de escritorio para generar IPA de forma local mediante nxnative." width="100%">
+
 SNative Studio es una aplicación nativa de macOS, desarrollada con SwiftUI por AbadX. La versión 0.1.0 ofrece una interfaz para generar una IPA sin firmar en el propio Mac. La aplicación instalada usa el motor incluido en `Contents/Resources/Engine`. Un checkout de nxnative solo se usa si esa carpeta no existe.
 
-No es una distribución oficial de nxnative. No está afiliada, patrocinada ni respaldada por Nintendo ni por quienes desarrollan nxnative. No incluye juegos, NSP ni `prod.keys`. El aviso completo está en `docs/AVISO-LEGAL.md`.
+No es una distribución oficial de nxnative. No está afiliada, patrocinada ni respaldada por Nintendo ni por quienes desarrollan nxnative. No incluye juegos, NSP ni `prod.keys`. El aviso completo está en [docs/AVISO-LEGAL.md](docs/AVISO-LEGAL.md).
 
 ## Versión experimental
 
@@ -14,16 +16,33 @@ La publicación actual es una versión de pruebas, no una distribución general.
 - Generar una IPA está orientado a Apple Silicon. Ese flujo no se ha probado en un Mac Intel.
 - No se garantiza compatibilidad con todos los Mac, juegos o versiones de las herramientas.
 
-## Documentación
+## Capturas
 
-- `docs/REQUISITOS.md`: abrir la aplicación y generar una IPA.
-- `docs/INSTALACION.md`: instalación, configuración y construcción.
-- `docs/DEPENDENCIAS.md`: herramientas, versiones vistas y comprobación.
-- `docs/EQUIPO-DE-PRUEBAS.md`: qué se ha ejecutado y qué no.
-- `docs/SOLUCION-DE-PROBLEMAS.md`: fallos ya vistos.
-- `docs/LICENCIAS-Y-CREDITOS.md`: atribuciones. El inventario de empaquetado sigue en `docs/dependencias-empaquetado.md`.
+### Inicio
 
-## Versión 0.1.0
+<img src="assets/imagenes/inicio.png" alt="Pantalla Inicio de SNative Studio" width="100%">
+
+### Proyectos
+
+<img src="assets/imagenes/proyectos.png" alt="Pantalla Proyectos de SNative Studio" width="100%">
+
+### Compilación
+
+<img src="assets/imagenes/compilacion.png" alt="Pantalla Compilación de SNative Studio" width="100%">
+
+### Herramientas
+
+<img src="assets/imagenes/herramientas.png" alt="Pantalla Herramientas de SNative Studio" width="100%">
+
+### Ajustes
+
+<img src="assets/imagenes/ajustes.png" alt="Pantalla Ajustes de SNative Studio" width="100%">
+
+### Acerca de
+
+<img src="assets/imagenes/acerca-de.png" alt="Pantalla Acerca de de SNative Studio" width="100%">
+
+## Funciones principales
 
 La aplicación, en el código de esta versión:
 
@@ -37,6 +56,15 @@ La aplicación, en el código de esta versión:
 Generar una IPA, firmarla, instalarla y ejecutar el juego son cuatro pasos distintos. Esta versión solo hace el primero. No firma ni instala la IPA, no descarga juegos ni herramientas y no incluye archivos de juego.
 
 El usuario debe disponer legítimamente de sus propios NSP y de su archivo `prod.keys`. Esos archivos no se publican con SNative Studio.
+
+## Documentación
+
+- [docs/REQUISITOS.md](docs/REQUISITOS.md): abrir la aplicación y generar una IPA.
+- [docs/INSTALACION.md](docs/INSTALACION.md): instalación, configuración y construcción.
+- [docs/DEPENDENCIAS.md](docs/DEPENDENCIAS.md): herramientas, versiones vistas y comprobación.
+- [docs/EQUIPO-DE-PRUEBAS.md](docs/EQUIPO-DE-PRUEBAS.md): qué se ha ejecutado y qué no.
+- [docs/SOLUCION-DE-PROBLEMAS.md](docs/SOLUCION-DE-PROBLEMAS.md): fallos ya vistos.
+- [docs/LICENCIAS-Y-CREDITOS.md](docs/LICENCIAS-Y-CREDITOS.md): atribuciones. El inventario de empaquetado sigue en [docs/dependencias-empaquetado.md](docs/dependencias-empaquetado.md).
 
 ## Requisitos que declara el proyecto
 
