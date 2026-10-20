@@ -37,12 +37,15 @@ final class StudioViewModel {
     }
 
     convenience init() {
+        let tools = ToolsViewModel()
+        let build = BuildViewModel()
         self.init(
             settings: SettingsViewModel(),
-            build: BuildViewModel(),
-            tools: ToolsViewModel(),
+            build: build,
+            tools: tools,
             library: .live()
         )
+        build.environmentGate = { tools.compilationBlock }
     }
 
     var selectedProject: ProjectDraft? {

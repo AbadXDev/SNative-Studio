@@ -62,7 +62,7 @@ struct BuildView: View {
                             Task { await model.generate(draft: selected) }
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(selected == nil || model.isRunning || model.isEvaluating)
+                        .disabled(selected == nil || model.isRunning || model.isEvaluating || studio.tools.compilationBlock != nil)
                         Button("Editar proyecto") {
                             if let selected { studio.presentEdit(selected) }
                         }
@@ -122,6 +122,10 @@ struct BuildView: View {
         .task(id: selected) {
             guard let selected else { return }
             await model.refresh(draft: selected)
+        }
+        .onChange(of: studio.tools.isChecking) { _, checking in
+            guard !checking, let selected else { return }
+            Task { await model.refresh(draft: selected) }
         }
         .onChange(of: selected) { _, _ in
             model.dismissOverwrite()

@@ -14,9 +14,11 @@ final class BuildAndToolsTests: XCTestCase {
     func testProbeReportsOnlyWhatTheLocatorFinds() {
         let probe = EnvironmentProbe(locator: MapLocator(paths: ["swift": "/usr/bin/swift", "xcodebuild": "/usr/bin/xcodebuild"]))
         let tools = probe.inspect()
-        XCTAssertEqual(tools.count, 8)
+        XCTAssertEqual(tools.count, DependencyCatalog.specs.count)
         XCTAssertEqual(tools.first { $0.id == "swift" }?.state, .available(path: "/usr/bin/swift"))
+        XCTAssertEqual(tools.first { $0.id == "swift" }?.requirement, .optional)
         XCTAssertEqual(tools.first { $0.id == "brew" }?.state, .missing)
+        XCTAssertEqual(tools.first { $0.id == "xcode" }?.requirement, .required)
         XCTAssertFalse(tools.contains { tool in
             if case .available(let path) = tool.state, path.isEmpty { return true }
             return false

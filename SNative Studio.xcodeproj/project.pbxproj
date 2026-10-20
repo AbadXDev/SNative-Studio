@@ -24,6 +24,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A10000000000000000000001 /* SNative Studio */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A10000000000000000000003 /* Exceptions for "SNative Studio" folder in "SNative Studio" target */,
+			);
 			path = "SNative Studio";
 			sourceTree = "<group>";
 		};
@@ -33,6 +36,47 @@
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A10000000000000000000003 /* Exceptions for "SNative Studio" folder in "SNative Studio" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/Notices/PENDIENTES.md,
+				Resources/Notices/README.md,
+				Resources/Notices/SNative-Studio/LICENSE,
+				Resources/Notices/deko3d/LICENSE,
+				Resources/Notices/dotnet/LICENSE.txt,
+				Resources/Notices/dotnet/ThirdPartyNotices.txt,
+				Resources/Notices/gommon-2.8.1.2/LICENSE,
+				Resources/Notices/humanizer-core-3.0.10/license.txt,
+				Resources/Notices/msgpack-cli-1.0.1/LICENSE.txt,
+				Resources/Notices/nuget-libhac.md,
+				Resources/Notices/nxnative/LICENSE,
+				Resources/Notices/nxnative/nvn/nvn.h-license.txt,
+				Resources/Notices/nxnative/third_party/flip/LICENSE,
+				Resources/Notices/nxnative/third_party/libdeflate/COPYING,
+				Resources/Notices/nxnative/third_party/libvpx/LICENSE,
+				Resources/Notices/nxnative/third_party/libvpx/PATENTS,
+				Resources/Notices/nxnative/third_party/macnativegames/LICENSE,
+				Resources/Notices/nxnative/third_party/ryujinx/LICENSE.txt,
+				Resources/Notices/nxnative/third_party/ryujinx/Spv.Generator-LICENSE,
+				Resources/Notices/nxnative/third_party/stb_vorbis/LICENSE,
+				Resources/Notices/nxnative/third_party/vulkan-headers/LICENSE.md,
+				Resources/Notices/python/REQUISITOS.md,
+				Resources/Notices/python/capstone-5.0.9-LICENSE.TXT,
+				Resources/Notices/python/fonttools-4.60.2-LICENSE,
+				Resources/Notices/python/lz4-4.4.5-LICENSE,
+				Resources/Notices/recyclablememorystream-3.0.1/LICENSE,
+				Resources/Notices/spirv-cross-1.4.363.0/COPYRIGHTS.txt,
+				Resources/Notices/spirv-cross-1.4.363.0/LICENSE,
+				Resources/Notices/system-codedom-4.4.0/LICENSE.TXT,
+				Resources/Notices/system-codedom-4.4.0/THIRD-PARTY-NOTICES.TXT,
+				Resources/Notices/xcodegen-2.46.0/LICENSE,
+				Resources/Notices/zstd-1.5.7/LICENSE,
+			);
+			target = A10000000000000000000040 /* SNative Studio */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		A10000000000000000000010 /* Frameworks */ = {
@@ -80,6 +124,7 @@
 				A10000000000000000000060 /* Sources */,
 				A10000000000000000000010 /* Frameworks */,
 				A10000000000000000000061 /* Resources */,
+				A10000000000000000000064 /* Bundle engine and notices */,
 			);
 			buildRules = (
 			);
@@ -161,6 +206,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A10000000000000000000064 /* Bundle engine and notices */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle engine and notices";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"${SRCROOT}/scripts/bundle_engine.sh\" \"${NXNATIVE_SRC:-${SRCROOT}/../nxnative}\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A10000000000000000000060 /* Sources */ = {

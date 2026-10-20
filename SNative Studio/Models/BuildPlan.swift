@@ -18,6 +18,8 @@ struct BuildFacts: Equatable, Sendable {
     var files: [String: FileInspection]
     var siblingNSPNames: [String]
     var profileIPANames: [String: String]
+    /// True only when the resolved engine is the packaged copy. An external checkout does not receive SNATIVE_TOOL_PATH.
+    var prefersPackagedTools: Bool = false
 }
 
 struct BuildCommand: Equatable, Sendable {
@@ -76,7 +78,7 @@ enum BuildPlanner {
 
     static func decide(draft: ProjectDraft, facts: BuildFacts, allowOverwrite: Bool) -> BuildPlanResult {
         guard let root = facts.engineRoot, facts.scriptExists else {
-            return .blocked("No se encuentra el motor nxnative. Hace falta un repositorio con scripts/build_ipa_from_nsp.py y dm/tools/nx_extract/Program.cs. La búsqueda recorre la aplicación, el ejecutable y el directorio de trabajo.")
+            return .blocked(EngineLocator.absentMessage)
         }
         guard facts.translatorExists else {
             return .blocked("El repositorio no contiene el traductor dm/gfx/tools/dmsh_xlate_bin/dmsh_xlate.")
@@ -84,7 +86,11 @@ enum BuildPlanner {
 
         let missingTools = requiredTools.filter { facts.tools[$0] == nil }
         if !missingTools.isEmpty {
-            return .blocked("Faltan herramientas: \(missingTools.joined(separator: ", ")). SNative Studio no las instala.")
+            var message = "Faltan herramientas: \(missingTools.joined(separator: ", ")). SNative Studio no las instala."
+            if missingTools.contains("xcodebuild") {
+                message += " xcodebuild, el SDK de iOS y el compilador Metal tienen que estar instalados con Xcode."
+            }
+            return .blocked(message)
         }
         if !facts.missingPythonModules.isEmpty {
             return .blocked("Faltan módulos de Python: \(facts.missingPythonModules.joined(separator: ", ")). El script importa lz4.block, capstone y fontTools. SNative Studio no los instala.")
@@ -152,6 +158,10 @@ enum BuildPlanner {
             environment["DOTNET_ROOT_ARM64"] = dotnetRoot
         }
 
+        environment = pathPrependingToolDirectories(environment, tools: facts.tools)
+        if facts.prefersPackagedTools, let packagedTools = packagedToolPath(engineRoot: root, tools: facts.tools) {
+            environment["SNATIVE_TOOL_PATH"] = packagedTools
+        }
         let command = BuildCommand(
             executable: python,
             arguments: [script, baseDirectory.path, "-k", draft.prodKeys, "-o", outputPath, "--progress", "lines"],
@@ -166,6 +176,95 @@ enum BuildPlanner {
             return .needsOverwrite(path: outputPath, command: command, summary: summary)
         }
         return .ready(command, summary: summary)
+    }
+
+    /// Puts the directories of the tools this plan selected ahead of PATH for this process only.
+    /// The packaged script then prepends SNATIVE_TOOL_PATH to its own TOOL_PATHS. The user's login PATH is left unchanged.
+    static func packagedToolPath(engineRoot: String, tools: [String: String]) -> String? {
+        let engine = URL(fileURLWithPath: engineRoot).standardizedFileURL
+        guard engine.lastPathComponent == BundledLayout.engineDirectoryName else { return nil }
+        let toolsRoot = BundledLayout.toolsDirectory(resources: engine.deletingLastPathComponent()).standardizedFileURL.path
+        let prefix = toolsRoot.hasSuffix("/") ? toolsRoot : toolsRoot + "/"
+        let preferred = ["python3", "dotnet", "xcodegen", "zstd", "spirv-cross"]
+        var directories: [String] = []
+        for name in preferred {
+            guard let path = tools[name], !path.isEmpty else { continue }
+            let standardized = URL(fileURLWithPath: path).standardizedFileURL.path
+            guard standardized.hasPrefix(prefix) else { continue }
+            let directory = URL(fileURLWithPath: standardized).deletingLastPathComponent().standardizedFileURL.path
+            if !directories.contains(directory) {
+                directories.append(directory)
+            }
+        }
+        guard !directories.isEmpty else { return nil }
+        return directories.joined(separator: ":")
+    }
+
+    /// Puts the directories of the tools this plan selected ahead of PATH for this process only.
+    static func pathPrependingToolDirectories(_ environment: [String: String], tools: [String: String]) -> [String: String] {
+        let preferred = ["python3", "dotnet", "xcodegen", "zstd", "spirv-cross"]
+        var directories: [String] = []
+        for name in preferred {
+            guard let path = tools[name], !path.isEmpty else { continue }
+            let directory = URL(fileURLWithPath: path).deletingLastPathComponent().path
+            if !directories.contains(directory) {
+                directories.append(directory)
+            }
+        }
+        guard !directories.isEmpty else { return environment }
+        var environment = environment
+        let current = environment["PATH"] ?? ""
+        var seen = Set<String>()
+        let merged = (directories + current.split(separator: ":").map(String.init)).filter { seen.insert($0).inserted }
+        environment["PATH"] = merged.joined(separator: ":")
+        return environment
+    }
+
+    /// Points a launch at a writable engine copy and keeps MSBuild, NuGet and temp files outside the app bundle.
+    static func applyingWritableEngine(
+        _ result: BuildPlanResult,
+        from engineRoot: String,
+        to writableRoot: String,
+        layout: EngineWorkLayout
+    ) -> BuildPlanResult {
+        switch result {
+        case .blocked:
+            return result
+        case .ready(let command, let summary):
+            return .ready(relocated(command, from: engineRoot, to: writableRoot, layout: layout), summary: relocatedSummary(summary, from: engineRoot, to: writableRoot))
+        case .needsOverwrite(let path, let command, let summary):
+            return .needsOverwrite(path: path, command: relocated(command, from: engineRoot, to: writableRoot, layout: layout), summary: relocatedSummary(summary, from: engineRoot, to: writableRoot))
+        }
+    }
+
+    private static func relocated(_ command: BuildCommand, from engineRoot: String, to writableRoot: String, layout: EngineWorkLayout) -> BuildCommand {
+        var command = command
+        command.workingDirectory = relocate(command.workingDirectory, from: engineRoot, to: writableRoot)
+        command.arguments = command.arguments.map { relocate($0, from: engineRoot, to: writableRoot) }
+        var environment = command.environment
+        environment["NUGET_PACKAGES"] = layout.nugetPackages.path
+        environment["TMPDIR"] = layout.temporaryDirectory.path
+        environment["TEMP"] = layout.temporaryDirectory.path
+        environment["TMP"] = layout.temporaryDirectory.path
+        environment["DOTNET_CLI_HOME"] = layout.dotnetHome.path
+        environment["BaseIntermediateOutputPath"] = layout.intermediateOutput.path.hasSuffix("/") ? layout.intermediateOutput.path : layout.intermediateOutput.path + "/"
+        environment["MSBuildProjectExtensionsPath"] = environment["BaseIntermediateOutputPath"]
+        environment["BaseOutputPath"] = layout.buildOutput.path.hasSuffix("/") ? layout.buildOutput.path : layout.buildOutput.path + "/"
+        command.environment = environment
+        return command
+    }
+
+    private static func relocate(_ path: String, from source: String, to destination: String) -> String {
+        let sourceURL = URL(fileURLWithPath: source).standardizedFileURL
+        let pathURL = URL(fileURLWithPath: path).standardizedFileURL
+        let prefix = sourceURL.path.hasSuffix("/") ? sourceURL.path : sourceURL.path + "/"
+        guard pathURL.path == sourceURL.path || pathURL.path.hasPrefix(prefix) else { return path }
+        let relative = pathURL.path == sourceURL.path ? "" : String(pathURL.path.dropFirst(prefix.count))
+        return URL(fileURLWithPath: destination).appendingPathComponent(relative).path
+    }
+
+    private static func relocatedSummary(_ summary: String, from engineRoot: String, to writableRoot: String) -> String {
+        summary.replacingOccurrences(of: engineRoot, with: writableRoot)
     }
 
     private static func fileProblem(_ title: String, _ file: FileInspection?) -> String? {

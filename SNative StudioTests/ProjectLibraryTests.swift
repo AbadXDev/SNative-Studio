@@ -202,7 +202,8 @@ final class ProjectLibraryTests: XCTestCase {
             environment: ["PATH": "/usr/bin"],
             files: files,
             siblingNSPNames: [URL(fileURLWithPath: draft.baseNSP).lastPathComponent],
-            profileIPANames: [:]
+            profileIPANames: [:],
+            prefersPackagedTools: false
         )
     }
 

@@ -1,0 +1,90 @@
+GLSL.std.450.h
+ * Copyright 2014-2016,2021 The Khronos Group, Inc.
+ * SPDX-License-Identifier: MIT
+
+barrier.hpp
+ * Copyright 2015-2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+
+external_interface.h
+ * Copyright 2015-2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+
+image.hpp
+ * Copyright 2015-2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+
+internal_interface.hpp
+ * Copyright 2015-2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+
+sampler.hpp
+ * Copyright 2015-2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+
+spirv.h
+** Copyright: 2014-2024 The Khronos Group Inc.
+
+spirv.hpp
+// Copyright: 2014-2024 The Khronos Group Inc.
+
+spirv_cfg.hpp
+ * Copyright 2016-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_common.hpp
+ * Copyright 2015-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_cpp.hpp
+ * Copyright 2015-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_cross.hpp
+ * Copyright 2015-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_cross_c.h
+ * Copyright 2019-2021 Hans-Kristian Arntzen
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_cross_containers.hpp
+ * Copyright 2019-2021 Hans-Kristian Arntzen
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_cross_error_handling.hpp
+ * Copyright 2015-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_cross_parsed_ir.hpp
+ * Copyright 2018-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_cross_util.hpp
+ * Copyright 2015-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_glsl.hpp
+ * Copyright 2015-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_hlsl.hpp
+ * Copyright 2016-2021 Robert Konrad
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_msl.hpp
+ * Copyright 2016-2021 The Brenwill Workshop Ltd.
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_parser.hpp
+ * Copyright 2018-2021 Arm Limited
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+spirv_reflect.hpp
+ * Copyright 2018-2021 Bradley Austin Davis
+ * SPDX-License-Identifier: Apache-2.0 OR MIT
+
+thread_group.hpp
+ * Copyright 2015-2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+

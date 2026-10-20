@@ -17,6 +17,7 @@ final class BuildViewModel {
     private let launcher: any BuildLaunching
     private let ipaExists: @Sendable (String) -> Bool
     private let gate = MainGate()
+    var environmentGate: @MainActor () -> String? = { nil }
 
     var isRunning: Bool { snapshot.status == .running }
 
@@ -42,6 +43,12 @@ final class BuildViewModel {
 
     func confirmOverwrite() {
         guard let command = pendingCommand, !isRunning else { return }
+        if let message = environmentGate() {
+            readiness = message
+            pendingCommand = nil
+            overwritePath = nil
+            return
+        }
         pendingCommand = nil
         overwritePath = nil
         launch(command)
@@ -67,6 +74,12 @@ final class BuildViewModel {
         compiledProjectID = draft.id
         request += 1
         let token = request
+        if let message = environmentGate() {
+            readiness = message
+            pendingCommand = nil
+            overwritePath = nil
+            return
+        }
         isEvaluating = true
         let planner = self.planner
         let result = await Task.detached(priority: .userInitiated) {
@@ -74,6 +87,12 @@ final class BuildViewModel {
         }.value
         isEvaluating = false
         guard token == request, !isRunning else { return }
+        if let message = environmentGate() {
+            readiness = message
+            pendingCommand = nil
+            overwritePath = nil
+            return
+        }
         switch result {
         case .ready(let command, let summary):
             readiness = summary

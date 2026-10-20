@@ -12,8 +12,8 @@ final class BuildEngineTests: XCTestCase {
         try FileManager.default.createDirectory(at: unrelated, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: unrelated) }
 
-        XCTAssertEqual(EngineLocator.locate(startingAt: [unrelated, deep])?.standardizedFileURL.path, root.standardizedFileURL.path)
-        XCTAssertNil(EngineLocator.locate(startingAt: [unrelated]))
+        XCTAssertEqual(EngineLocator.locate(startingAt: [unrelated, deep], packagedDirectory: nil)?.standardizedFileURL.path, root.standardizedFileURL.path)
+        XCTAssertNil(EngineLocator.locate(startingAt: [unrelated], packagedDirectory: nil))
     }
 
     func testCommandUsesDocumentedArgumentsWithoutJoiningUserText() {
@@ -66,6 +66,7 @@ final class BuildEngineTests: XCTestCase {
         draft.outputDirectory = output.path
         let planner = LiveBuildPlanner(
             candidates: [root.appendingPathComponent("anidado/nota.txt")],
+            packagedEngineDirectory: nil,
             locator: MapLocator(paths: Dictionary(uniqueKeysWithValues: BuildPlanner.requiredTools.map { ($0, "/usr/bin/\($0)") }).merging(["dotnet": "/Users/test/.dotnet/dotnet"]) { _, new in new }),
             missingPythonModules: [],
             environment: ["PATH": "/usr/bin", "HOME": "/Users/test"]
@@ -243,7 +244,8 @@ final class BuildEngineTests: XCTestCase {
                 URL(fileURLWithPath: draft.baseNSP).lastPathComponent,
                 URL(fileURLWithPath: draft.updateNSP).lastPathComponent
             ],
-            profileIPANames: ["010015100B514000": "SMBWMobile.ipa"]
+            profileIPANames: ["010015100B514000": "SMBWMobile.ipa"],
+            prefersPackagedTools: false
         )
     }
 
@@ -339,6 +341,41 @@ final class BuildSessionTests: XCTestCase {
         launcher.handle?.finish(0)
         XCTAssertEqual(model.snapshot.status, .cancelled)
         XCTAssertNil(model.snapshot.ipaPath)
+    }
+
+    func testABlockedEnvironmentDoesNotStartCompilation() async {
+        let ipa = "/tmp/salida/SMBWMobile.ipa"
+        let launcher = ManualLauncher()
+        let model = BuildViewModel(
+            planner: StubPlanner(result: .ready(sampleCommand(ipa: ipa), summary: "listo")),
+            launcher: launcher,
+            ipaExists: { _ in true }
+        )
+        model.environmentGate = { "Impiden generar una IPA: Xcode, SDK de iOS." }
+        await model.generate(draft: ProjectDraft.blank())
+        XCTAssertNil(launcher.handle)
+        XCTAssertEqual(model.snapshot.status, .idle)
+        XCTAssertTrue(model.readiness.contains("Xcode"))
+        XCTAssertTrue(model.readiness.contains("SDK de iOS"))
+    }
+
+    func testConfirmingAnOverwriteAlsoRespectsTheEnvironmentGate() async {
+        let ipa = "/tmp/salida/SMBWMobile.ipa"
+        let command = sampleCommand(ipa: ipa)
+        let launcher = ManualLauncher()
+        let model = BuildViewModel(
+            planner: StubPlanner(result: .needsOverwrite(path: ipa, command: command, summary: "ya existe")),
+            launcher: launcher,
+            ipaExists: { _ in true }
+        )
+        await model.generate(draft: ProjectDraft.blank())
+        XCTAssertEqual(model.overwritePath, ipa)
+        model.environmentGate = { "Impiden generar una IPA: Metal." }
+        model.confirmOverwrite()
+        XCTAssertNil(launcher.handle)
+        XCTAssertNil(model.overwritePath)
+        XCTAssertEqual(model.snapshot.status, .idle)
+        XCTAssertTrue(model.readiness.contains("Metal"))
     }
 
     func testExistingIPAAsksBeforeLaunching() async {

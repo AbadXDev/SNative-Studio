@@ -23,24 +23,45 @@ enum PythonModules {
 
 struct LiveBuildPlanner: BuildPlanning {
     var candidates: [URL]
+    var packagedEngineDirectory: URL?
     var locator: any ExecutableLocating
     var missingPythonModules: [String]?
     var environment: [String: String]
+    var workSupportDirectory: URL
 
     init(
         candidates: [URL]? = nil,
+        packagedEngineDirectory: URL? = nil,
         locator: any ExecutableLocating = FileSystemLocator(),
         missingPythonModules: [String]? = nil,
-        environment: [String: String] = ProcessInfo.processInfo.environment
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        workSupportDirectory: URL? = nil
     ) {
         self.candidates = candidates ?? EngineLocator.defaultCandidates()
+        self.packagedEngineDirectory = packagedEngineDirectory ?? EngineLocator.bundledEngineDirectory()
         self.locator = locator
         self.missingPythonModules = missingPythonModules
         self.environment = environment
+        self.workSupportDirectory = workSupportDirectory ?? EngineWorkCopy.defaultSupportDirectory()
     }
 
     func plan(draft: ProjectDraft, allowOverwrite: Bool) -> BuildPlanResult {
-        let root = EngineLocator.locate(startingAt: candidates)
+        let location = EngineLocator.resolve(packagedDirectory: packagedEngineDirectory, externalCandidates: candidates)
+        let root: URL?
+        let prefersPackagedTools: Bool
+        switch location {
+        case .incomplete(let directory, let missing):
+            return .blocked(EngineLocator.incompleteMessage(directory: directory, missing: missing))
+        case .absent:
+            root = nil
+            prefersPackagedTools = false
+        case .packaged(let url):
+            root = url
+            prefersPackagedTools = true
+        case .external(let url):
+            root = url
+            prefersPackagedTools = false
+        }
         let modules = resolvedModules()
         var tools: [String: String] = [:]
         for name in BuildPlanner.requiredTools {
@@ -67,16 +88,29 @@ struct LiveBuildPlanner: BuildPlanning {
             engineRoot: root?.path,
             scriptExists: root.map { EngineLocator.isRepository($0) } ?? false,
             translatorExists: root.map {
-                FileManager.default.fileExists(atPath: $0.appendingPathComponent("dm/gfx/tools/dmsh_xlate_bin/dmsh_xlate").path)
+                FileManager.default.fileExists(atPath: $0.appendingPathComponent(EngineLocator.translatorRelativePath).path)
             } ?? false,
             tools: tools,
             missingPythonModules: modules,
             environment: environment,
             files: files,
             siblingNSPNames: siblings,
-            profileIPANames: profiles
+            profileIPANames: profiles,
+            prefersPackagedTools: prefersPackagedTools
         )
-        return BuildPlanner.decide(draft: draft, facts: facts, allowOverwrite: allowOverwrite)
+        let planned = BuildPlanner.decide(draft: draft, facts: facts, allowOverwrite: allowOverwrite)
+        guard let root, EngineWorkCopy.needsWritableCopy(root.path) else { return planned }
+        switch planned {
+        case .blocked:
+            return planned
+        case .ready, .needsOverwrite:
+            do {
+                let layout = try EngineWorkCopy.prepare(engineRoot: root, projectID: draft.id, supportDirectory: workSupportDirectory)
+                return BuildPlanner.applyingWritableEngine(planned, from: root.path, to: layout.engine.path, layout: layout)
+            } catch {
+                return .blocked("No se puede preparar una copia escribible del motor. SNative Studio no escribe dentro de la aplicación.")
+            }
+        }
     }
 
     private func resolvedModules() -> [String] {

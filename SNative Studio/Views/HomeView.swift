@@ -96,7 +96,7 @@ struct HomeView: View {
         HomeCard(symbol: "wrench.and.screwdriver", title: "Entorno de compilación", accent: accent) {
             Text(studio.tools.summary)
                 .font(.title3.weight(.semibold))
-            Text("La comprobación solo busca ejecutables. No instala nada.")
+            Text("La comprobación revisa el motor y las herramientas. No instala nada.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
